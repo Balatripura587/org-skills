@@ -1,0 +1,42 @@
+# k8s-netperf TCP_STREAM Performance Analysis - AWS OCP 4.22
+#
+# Tracks TCP throughput regression for both pod network and host network
+# scenarios on AWS running OCP 4.22.
+#
+# Key points:
+#   - No 'aggregation' field: k8s-netperf data is pre-aggregated
+#   - Filters (profile, hostNetwork, service) at METRICS level, not metadata
+#   - Boolean values are quoted strings ("false"/"true"), not YAML booleans
+#   - Both benchmark-index and metadata-index use 'k8s-netperf-*'
+#
+# Usage:
+#   orion --config k8s-netperf-tcp-stream-aws.yaml --hunter-analyze \
+#     --es-server='https://user:pass@es.example.com' \
+#     --benchmark-index='k8s-netperf-*' \
+#     --metadata-index='k8s-netperf-*' \
+#     --lookback=15d --viz
+
+tests:
+  - name: tcp-stream-aws-ocp422
+    metadata:
+      # Metadata level: only platform and version (for UUID matching)
+      metadata.platform: AWS
+      metadata.ocpMajorVersion: "4.22"
+    metrics:
+      # Pod Network throughput (traffic goes through CNI plugin)
+      - name: tcpStreamPodNetwork
+        metric_of_interest: throughput
+        profile.keyword: TCP_STREAM
+        hostNetwork: "false"
+        service: "false"
+        threshold: 10
+        direction: -1  # Throughput decrease is a regression
+
+      # Host Network throughput (bypasses CNI - performance baseline)
+      - name: tcpStreamHostNetwork
+        metric_of_interest: throughput
+        profile.keyword: TCP_STREAM
+        hostNetwork: "true"
+        service: "false"
+        threshold: 10
+        direction: -1  # Throughput decrease is a regression

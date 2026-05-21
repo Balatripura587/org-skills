@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "kube-burner-config",
+  "prompt": "I need an Orion config to analyze cluster-density-v2 on AWS with 3 master nodes (m6a.xlarge) and 6 worker nodes (m6a.xlarge) on OCP 4.22. I want to monitor API server CPU, etcd disk latency, and pod ready latency.",
+  "assertions": [
+    "Output contains a valid YAML config with a top-level 'tests' key",
+    "Metadata section includes platform: AWS and benchmark.keyword: cluster-density-v2",
+    "Metadata includes masterNodesType, masterNodesCount, workerNodesType, workerNodesCount fields",
+    "API server CPU metric uses metricName: containerCPU with labels.namespace.keyword: openshift-kube-apiserver",
+    "etcd disk latency metric uses metricName: 99thEtcdDiskBackendCommitDurationSeconds",
+    "Pod ready latency metric uses metricName: podLatencyQuantilesMeasurement with quantileName: Ready",
+    "Metrics use the nested agg: structure with value and agg_type subfields (not flat 'aggregation')",
+    "Each metric has a threshold and direction field"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "expectations": [
+    {"text": "Output contains a valid YAML config with a top-level 'tests' key", "passed": true, "evidence": "Line 19: 'tests:' present"},
+    {"text": "Metadata section uses metadata.platform (not bare 'platform') for k8s-netperf pattern", "passed": true, "evidence": "Line 23: 'metadata.platform: AWS'"},
+    {"text": "profile.keyword filter is at the metrics level, not the metadata level", "passed": true, "evidence": "Lines 29,37: profile.keyword under metrics, not metadata"},
+    {"text": "hostNetwork values use quoted strings like '\"false\"' or '\"true\"' (not bare YAML booleans)", "passed": true, "evidence": "Lines 30,38: hostNetwork: \"false\" and \"true\" (quoted strings)"},
+    {"text": "Metrics do NOT include an 'aggregation' or 'agg' field (k8s-netperf data is pre-aggregated)", "passed": true, "evidence": "No agg or aggregation field in either metric definition"},
+    {"text": "metric_of_interest is set to 'throughput'", "passed": true, "evidence": "Lines 28,36: metric_of_interest: throughput"},
+    {"text": "Config includes separate metrics for pod network (hostNetwork: \"false\") and host network (hostNetwork: \"true\")", "passed": true, "evidence": "Two metrics: tcpStreamPodNetwork (hostNetwork: \"false\") and tcpStreamHostNetwork (hostNetwork: \"true\")"},
+    {"text": "direction is set to -1 for throughput (decrease is regression)", "passed": true, "evidence": "Lines 33,41: direction: -1 on both metrics"}
+  ],
+  "summary": {"passed": 8, "failed": 0, "total": 8, "pass_rate": 1.0}
+}

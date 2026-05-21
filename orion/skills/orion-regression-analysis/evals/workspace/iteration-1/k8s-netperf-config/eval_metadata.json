@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "k8s-netperf-config",
+  "prompt": "Create an Orion config for k8s-netperf TCP_STREAM performance on AWS. I want to track throughput for both pod network and host network scenarios on OCP 4.22.",
+  "assertions": [
+    "Output contains a valid YAML config with a top-level 'tests' key",
+    "Metadata section uses metadata.platform (not bare 'platform') for k8s-netperf pattern",
+    "profile.keyword filter is at the metrics level, not the metadata level",
+    "hostNetwork values use quoted strings like '\"false\"' or '\"true\"' (not bare YAML booleans)",
+    "Metrics do NOT include an 'aggregation' or 'agg' field (k8s-netperf data is pre-aggregated)",
+    "metric_of_interest is set to 'throughput'",
+    "Config includes separate metrics for pod network (hostNetwork: \"false\") and host network (hostNetwork: \"true\")",
+    "direction is set to -1 for throughput (decrease is regression)"
+  ]
+}

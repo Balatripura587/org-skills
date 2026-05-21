@@ -1,0 +1,188 @@
+{
+  "metadata": {
+    "skill_name": "orion-regression-analysis",
+    "skill_path": "/Users/vchalla/myforks/org-skills/orion/skills/orion-regression-analysis",
+    "executor_model": "claude-opus-4-6",
+    "timestamp": "2026-05-15T15:30:00Z",
+    "evals_run": [1, 2, 3],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "kube-burner-config",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 31.6,
+        "tokens": 31030,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Valid YAML with top-level 'tests' key", "passed": true, "evidence": "tests: present at line 7"},
+        {"text": "platform: AWS and benchmark.keyword: cluster-density-v2", "passed": true, "evidence": "Both present in metadata section"},
+        {"text": "Node config fields (masterNodesType/Count, workerNodesType/Count)", "passed": true, "evidence": "All four fields present with correct values"},
+        {"text": "API server CPU: metricName: containerCPU + namespace filter", "passed": true, "evidence": "containerCPU with openshift-kube-apiserver namespace"},
+        {"text": "etcd: metricName: 99thEtcdDiskBackendCommitDurationSeconds", "passed": true, "evidence": "Correct full metric name"},
+        {"text": "Pod latency: podLatencyQuantilesMeasurement + quantileName: Ready", "passed": true, "evidence": "Correct metric and quantile"},
+        {"text": "Nested agg: structure (value + agg_type subfields)", "passed": true, "evidence": "agg: value: cpu, agg_type: avg"},
+        {"text": "Each metric has threshold and direction", "passed": true, "evidence": "All 3 metrics have threshold and direction: 1"}
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "kube-burner-config",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.25,
+        "passed": 2,
+        "failed": 6,
+        "total": 8,
+        "time_seconds": 17.9,
+        "tokens": 11234,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Valid YAML with top-level 'tests' key", "passed": true, "evidence": "tests: present"},
+        {"text": "platform: AWS and benchmark.keyword: cluster-density-v2", "passed": false, "evidence": "Uses 'benchmark:' not 'benchmark.keyword:'. Added invented fields 'index' and 'benchmarkIndex'."},
+        {"text": "Node config fields (masterNodesType/Count, workerNodesType/Count)", "passed": true, "evidence": "All four present"},
+        {"text": "API server CPU: metricName: containerCPU + namespace filter", "passed": false, "evidence": "Wrong: metricName: apiServerCPU. No namespace filter."},
+        {"text": "etcd: metricName: 99thEtcdDiskBackendCommitDurationSeconds", "passed": false, "evidence": "Missing 'Seconds' suffix: 99thEtcdDiskBackendCommitDuration"},
+        {"text": "Pod latency: podLatencyQuantilesMeasurement + quantileName: Ready", "passed": false, "evidence": "Wrong: metricName: podLatency. No quantileName field."},
+        {"text": "Nested agg: structure (value + agg_type subfields)", "passed": false, "evidence": "Wrong structure: value: avg, agg_period: 5m (invented fields)"},
+        {"text": "Each metric has threshold and direction", "passed": false, "evidence": "No threshold field. direction: 0 instead of 1."}
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "k8s-netperf-config",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 35.4,
+        "tokens": 29280,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Valid YAML with top-level 'tests' key", "passed": true, "evidence": "tests: present"},
+        {"text": "Uses metadata.platform (not bare platform)", "passed": true, "evidence": "metadata.platform: AWS"},
+        {"text": "profile.keyword at metrics level (not metadata)", "passed": true, "evidence": "profile.keyword: TCP_STREAM under metrics"},
+        {"text": "hostNetwork uses quoted strings", "passed": true, "evidence": "\"false\" and \"true\" (quoted)"},
+        {"text": "No aggregation or agg field", "passed": true, "evidence": "No agg field present"},
+        {"text": "metric_of_interest: throughput", "passed": true, "evidence": "Set correctly on both metrics"},
+        {"text": "Separate pod network and host network metrics", "passed": true, "evidence": "Two metrics within one test"},
+        {"text": "direction: -1 for throughput", "passed": true, "evidence": "direction: -1 on both"}
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "k8s-netperf-config",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.375,
+        "passed": 3,
+        "failed": 5,
+        "total": 8,
+        "time_seconds": 20.5,
+        "tokens": 11210,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Valid YAML with top-level 'tests' key", "passed": true, "evidence": "tests: present"},
+        {"text": "Uses metadata.platform (not bare platform)", "passed": false, "evidence": "Uses bare 'platform: AWS'"},
+        {"text": "profile.keyword at metrics level (not metadata)", "passed": false, "evidence": "Uses invented 'filter: test_type:' and hostNetwork in metadata"},
+        {"text": "hostNetwork uses quoted strings", "passed": true, "evidence": "Values are quoted, though in wrong section"},
+        {"text": "No aggregation or agg field", "passed": false, "evidence": "Has agg: block with value/agg_type"},
+        {"text": "metric_of_interest: throughput", "passed": true, "evidence": "Set correctly"},
+        {"text": "Separate pod network and host network metrics", "passed": false, "evidence": "Two separate tests instead of metrics. hostNetwork in metadata."},
+        {"text": "direction: -1 for throughput", "passed": false, "evidence": "Uses direction: 0 instead of -1"}
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "troubleshooting-debug",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 119.7,
+        "tokens": 46549,
+        "tool_calls": 11,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Suggests discover-es-data.py for benchmarks/metrics", "passed": true, "evidence": "Multiple discovery commands in Step 7c"},
+        {"text": "Suggests validate-es-asset.py for connectivity", "passed": true, "evidence": "Step 7b: validate command"},
+        {"text": "Complete orion command with --es-server/--benchmark-index/--metadata-index", "passed": true, "evidence": "Full orion command with all correct flags"},
+        {"text": "Discovery commands: --config flag BEFORE subcommand", "passed": true, "evidence": "All commands use correct order"},
+        {"text": "Mentions metadata filters/lookback/index patterns as causes", "passed": true, "evidence": "Step 8 covers all three"},
+        {"text": "Does NOT create bash setup scripts", "passed": true, "evidence": "No bash scripts generated"}
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "troubleshooting-debug",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.333,
+        "passed": 2,
+        "failed": 4,
+        "total": 6,
+        "time_seconds": 65.2,
+        "tokens": 14097,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Suggests discover-es-data.py for benchmarks/metrics", "passed": false, "evidence": "No mention. Uses only raw curl commands."},
+        {"text": "Suggests validate-es-asset.py for connectivity", "passed": false, "evidence": "No mention. Uses curl to _cluster/health."},
+        {"text": "Complete orion command with --es-server/--benchmark-index/--metadata-index", "passed": false, "evidence": "Uses wrong flags: --es-url, --es-username, --es-password. Calls 'orion cmd' (wrong subcommand)."},
+        {"text": "Discovery commands: --config flag BEFORE subcommand", "passed": false, "evidence": "No discovery commands at all."},
+        {"text": "Mentions metadata filters/lookback/index patterns as causes", "passed": true, "evidence": "Covers index patterns, time range, and filter values"},
+        {"text": "Does NOT create bash setup scripts", "passed": true, "evidence": "Creates diagnostic script, not setup script"}
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0},
+      "time_seconds": {"mean": 62.2, "stddev": 40.3, "min": 31.6, "max": 119.7},
+      "tokens": {"mean": 35620, "stddev": 7650, "min": 29280, "max": 46549}
+    },
+    "without_skill": {
+      "pass_rate": {"mean": 0.32, "stddev": 0.05, "min": 0.25, "max": 0.375},
+      "time_seconds": {"mean": 34.5, "stddev": 20.8, "min": 17.9, "max": 65.2},
+      "tokens": {"mean": 12180, "stddev": 1310, "min": 11210, "max": 14097}
+    },
+    "delta": {
+      "pass_rate": "+0.68",
+      "time_seconds": "+27.7",
+      "tokens": "+23440"
+    }
+  },
+  "notes": [
+    "STRONG DIFFERENTIATION: With-skill scores 100% across all 3 evals. Without-skill averages 32%.",
+    "Eval 1 (kube-burner): Baseline gets wrong metricNames (apiServerCPU vs containerCPU), wrong agg structure, missing thresholds. Score: 25% vs 100%.",
+    "Eval 2 (k8s-netperf): Baseline adds aggregation field (should be absent), puts hostNetwork in metadata (should be metrics), uses direction: 0 (should be -1). Score: 37.5% vs 100%.",
+    "Eval 3 (troubleshooting): Baseline doesn't know about discover-es-data.py or validate-es-asset.py, uses wrong CLI flags. Score: 33% vs 100%.",
+    "With-skill uses ~3x more tokens (skill body in context) but is ~2x slower only because of deeper exploration. The accuracy gain (100% vs 32%) far outweighs the cost."
+  ]
+}

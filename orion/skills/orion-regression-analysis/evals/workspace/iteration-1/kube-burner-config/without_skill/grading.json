@@ -1,0 +1,13 @@
+{
+  "expectations": [
+    {"text": "Output contains a valid YAML config with a top-level 'tests' key", "passed": true, "evidence": "Line 1: 'tests:' present"},
+    {"text": "Metadata section includes platform: AWS and benchmark.keyword: cluster-density-v2", "passed": false, "evidence": "Uses 'benchmark: cluster-density-v2' (missing .keyword suffix). Also adds wrong top-level fields 'index' and 'benchmarkIndex' that don't exist in Orion schema."},
+    {"text": "Metadata includes masterNodesType, masterNodesCount, workerNodesType, workerNodesCount fields", "passed": true, "evidence": "Lines 7-10: all four node config fields present"},
+    {"text": "API server CPU metric uses metricName: containerCPU with labels.namespace.keyword: openshift-kube-apiserver", "passed": false, "evidence": "Uses metricName: apiServerCPU (wrong — should be containerCPU). No labels.namespace.keyword filter at all."},
+    {"text": "etcd disk latency metric uses metricName: 99thEtcdDiskBackendCommitDurationSeconds", "passed": false, "evidence": "Uses '99thEtcdDiskBackendCommitDuration' — missing 'Seconds' suffix"},
+    {"text": "Pod ready latency metric uses metricName: podLatencyQuantilesMeasurement with quantileName: Ready", "passed": false, "evidence": "Uses metricName: podLatency (wrong name). Missing quantileName: Ready field entirely."},
+    {"text": "Metrics use the nested agg: structure with value and agg_type subfields (not flat 'aggregation')", "passed": false, "evidence": "Uses wrong agg structure: 'value: avg, agg_period: 5m' instead of correct 'value: cpu, agg_type: avg'"},
+    {"text": "Each metric has a threshold and direction field", "passed": false, "evidence": "No threshold field on any metric. direction: 0 on all (should be 1 for increases-only)"}
+  ],
+  "summary": {"passed": 2, "failed": 6, "total": 8, "pass_rate": 0.25}
+}

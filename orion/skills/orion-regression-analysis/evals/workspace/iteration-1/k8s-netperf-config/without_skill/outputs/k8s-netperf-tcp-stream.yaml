@@ -1,0 +1,48 @@
+tests:
+  - name: k8s-netperf-tcp-stream-pod-network
+    index: k8s-netperf
+    benchmarkIndex: k8s-netperf
+    metadata:
+      platform: AWS
+      clusterType: rosa
+      networkType: OVNKubernetes
+      ocpVersion: "4.22"
+      benchmark: k8s-netperf
+      hostNetwork: "false"
+    metrics:
+      - name: tcp-stream-throughput-pod-network
+        metricName: throughput
+        metric_of_interest: throughput
+        agg:
+          value: avg
+          agg_type: avg
+        filter:
+          test_type: TCP_STREAM
+          hostNetwork: "false"
+          num_threads: 1
+          message_size: 1024
+        direction: 0
+
+  - name: k8s-netperf-tcp-stream-host-network
+    index: k8s-netperf
+    benchmarkIndex: k8s-netperf
+    metadata:
+      platform: AWS
+      clusterType: rosa
+      networkType: OVNKubernetes
+      ocpVersion: "4.22"
+      benchmark: k8s-netperf
+      hostNetwork: "true"
+    metrics:
+      - name: tcp-stream-throughput-host-network
+        metricName: throughput
+        metric_of_interest: throughput
+        agg:
+          value: avg
+          agg_type: avg
+        filter:
+          test_type: TCP_STREAM
+          hostNetwork: "true"
+          num_threads: 1
+          message_size: 1024
+        direction: 0

@@ -1,0 +1,13 @@
+{
+  "eval_id": 3,
+  "eval_name": "troubleshooting-debug",
+  "prompt": "I have an Orion config but I'm getting no data returned. My ES is at https://es.example.com with basic auth (user: admin, pass: secret123). I'm using benchmark index ripsaw-kube-burner-* and metadata index perf_scale_ci*. Can you help me debug and give me the right commands to investigate?",
+  "assertions": [
+    "Suggests running the discover-es-data.py script to check available benchmarks/metrics",
+    "Suggests running validate-es-asset.py to verify ES connectivity",
+    "Provides a complete orion command with --es-server, --benchmark-index, and --metadata-index flags using the user's provided values",
+    "Discovery commands use the correct flag order (--config BEFORE the subcommand)",
+    "Mentions checking metadata filters, lookback period, or index patterns as possible causes of no data",
+    "Does NOT suggest creating a bash setup script (the skill explicitly forbids this)"
+  ]
+}

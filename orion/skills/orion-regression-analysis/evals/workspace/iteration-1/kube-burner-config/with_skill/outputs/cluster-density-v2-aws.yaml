@@ -1,0 +1,65 @@
+# Orion Regression Analysis Configuration
+# Benchmark: cluster-density-v2 on AWS
+# Cluster: 3 master nodes (m6a.xlarge) + 6 worker nodes (m6a.xlarge)
+# OCP Version: 4.22
+# Monitored metrics: API server CPU, etcd disk latency, pod ready latency
+
+tests:
+  - name: cluster-density-v2-aws
+    metadata:
+      # Infrastructure filters
+      platform: AWS
+      clusterType: self-managed
+
+      # Node configuration
+      masterNodesType: m6a.xlarge
+      masterNodesCount: 3
+      workerNodesType: m6a.xlarge
+      workerNodesCount: 6
+
+      # Test identification
+      benchmark.keyword: cluster-density-v2
+      ocpVersion: "4.22"
+      networkType: OVNKubernetes
+
+      # Exclude test variations
+      not:
+        stream: okd
+        jobConfig.name: garbage-collection
+
+    metrics:
+      # API Server CPU usage (control plane bottleneck indicator)
+      - name: apiserverCPU
+        metricName: containerCPU
+        labels.namespace.keyword: openshift-kube-apiserver
+        metric_of_interest: value
+        agg:
+          value: cpu
+          agg_type: avg
+        threshold: 15
+        direction: 1
+        labels:
+          - "[Jira: kube-apiserver]"
+
+      # etcd disk backend commit duration (critical for cluster stability)
+      - name: etcdDiskLatency
+        metricName: 99thEtcdDiskBackendCommitDurationSeconds
+        metric_of_interest: value
+        agg:
+          value: duration
+          agg_type: avg
+        threshold: 15
+        direction: 1
+        correlation: apiserverCPU_avg
+        labels:
+          - "[Jira: etcd]"
+
+      # Pod ready latency P99 (key user-facing metric)
+      - name: podReadyLatency
+        metricName: podLatencyQuantilesMeasurement
+        quantileName: Ready
+        metric_of_interest: P99
+        threshold: 10
+        direction: 1
+        labels:
+          - "[Jira: PerfScale]"

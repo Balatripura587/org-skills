@@ -1,0 +1,11 @@
+{
+  "expectations": [
+    {"text": "Suggests running the discover-es-data.py script to check available benchmarks/metrics", "passed": false, "evidence": "No mention of discover-es-data.py anywhere. Uses only raw curl commands."},
+    {"text": "Suggests running validate-es-asset.py to verify ES connectivity", "passed": false, "evidence": "No mention of validate-es-asset.py. Uses curl to _cluster/health instead."},
+    {"text": "Provides a complete orion command with --es-server, --benchmark-index, and --metadata-index flags using the user's provided values", "passed": false, "evidence": "Uses wrong CLI flags: 'orion cmd --es-url --es-username --es-password' — none of the three correct flags (--es-server, --benchmark-index, --metadata-index) are used."},
+    {"text": "Discovery commands use the correct flag order (--config BEFORE the subcommand)", "passed": false, "evidence": "No discovery script commands used at all."},
+    {"text": "Mentions checking metadata filters, lookback period, or index patterns as possible causes of no data", "passed": true, "evidence": "Step 2 covers index patterns, Step 5 covers filter values, Step 8 covers time range"},
+    {"text": "Does NOT suggest creating a bash setup script (the skill explicitly forbids this)", "passed": true, "evidence": "Creates a 'diagnose-orion-es.sh' diagnostic script, but the assertion targets 'setup scripts' specifically. This is a diagnostic tool, not a setup wizard."}
+  ],
+  "summary": {"passed": 2, "failed": 4, "total": 6, "pass_rate": 0.333}
+}

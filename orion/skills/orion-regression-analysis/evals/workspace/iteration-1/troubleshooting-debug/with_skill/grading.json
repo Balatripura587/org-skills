@@ -1,0 +1,11 @@
+{
+  "expectations": [
+    {"text": "Suggests running the discover-es-data.py script to check available benchmarks/metrics", "passed": true, "evidence": "Step 7c: multiple discover-es-data.py commands for benchmarks, platforms, metrics, versions, node-config, and sample"},
+    {"text": "Suggests running validate-es-asset.py to verify ES connectivity", "passed": true, "evidence": "Step 7b: 'python3 scripts/validate-es-asset.py ~/.orion/elasticsearch-config.yaml'"},
+    {"text": "Provides a complete orion command with --es-server, --benchmark-index, and --metadata-index flags using the user's provided values", "passed": true, "evidence": "Step 9: orion command with --es-server='https://admin:secret123@es.example.com' --benchmark-index='ripsaw-kube-burner-*' --metadata-index='perf_scale_ci*'"},
+    {"text": "Discovery commands use the correct flag order (--config BEFORE the subcommand)", "passed": true, "evidence": "All Step 7c commands use 'discover-es-data.py --config ~/.orion/elasticsearch-config.yaml <subcommand>'"},
+    {"text": "Mentions checking metadata filters, lookback period, or index patterns as possible causes of no data", "passed": true, "evidence": "Step 8 covers wrong benchmark name, wrong version format, restrictive filters, schema mismatch, wrong metric fields, and lookback period"},
+    {"text": "Does NOT suggest creating a bash setup script (the skill explicitly forbids this)", "passed": true, "evidence": "No bash setup script suggested anywhere in the output"}
+  ],
+  "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0}
+}

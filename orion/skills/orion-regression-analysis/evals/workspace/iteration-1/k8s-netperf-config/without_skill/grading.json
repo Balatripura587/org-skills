@@ -1,0 +1,13 @@
+{
+  "expectations": [
+    {"text": "Output contains a valid YAML config with a top-level 'tests' key", "passed": true, "evidence": "Line 1: 'tests:' present"},
+    {"text": "Metadata section uses metadata.platform (not bare 'platform') for k8s-netperf pattern", "passed": false, "evidence": "Uses bare 'platform: AWS' (line 6) instead of 'metadata.platform: AWS'"},
+    {"text": "profile.keyword filter is at the metrics level, not the metadata level", "passed": false, "evidence": "Uses 'filter: test_type: TCP_STREAM' (invented field) and hostNetwork is in metadata section instead of metrics level"},
+    {"text": "hostNetwork values use quoted strings like '\"false\"' or '\"true\"' (not bare YAML booleans)", "passed": true, "evidence": "Values are quoted strings \"false\"/\"true\", though placed in wrong section (metadata instead of metrics)"},
+    {"text": "Metrics do NOT include an 'aggregation' or 'agg' field (k8s-netperf data is pre-aggregated)", "passed": false, "evidence": "Has agg: block with value: avg, agg_type: avg (lines 16-18). k8s-netperf data is pre-aggregated."},
+    {"text": "metric_of_interest is set to 'throughput'", "passed": true, "evidence": "Lines 15,39: metric_of_interest: throughput"},
+    {"text": "Config includes separate metrics for pod network (hostNetwork: \"false\") and host network (hostNetwork: \"true\")", "passed": false, "evidence": "Creates two separate TESTS instead of two metrics within one test. hostNetwork filter is in metadata, not metrics level."},
+    {"text": "direction is set to -1 for throughput (decrease is regression)", "passed": false, "evidence": "Uses direction: 0 on both (lines 24,48). Should be -1 since throughput decrease is a regression."}
+  ],
+  "summary": {"passed": 3, "failed": 5, "total": 8, "pass_rate": 0.375}
+}

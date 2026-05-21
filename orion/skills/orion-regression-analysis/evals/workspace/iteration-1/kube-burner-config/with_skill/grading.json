@@ -1,0 +1,13 @@
+{
+  "expectations": [
+    {"text": "Output contains a valid YAML config with a top-level 'tests' key", "passed": true, "evidence": "Line 7: 'tests:' present at top level"},
+    {"text": "Metadata section includes platform: AWS and benchmark.keyword: cluster-density-v2", "passed": true, "evidence": "Lines 11,22: 'platform: AWS' and 'benchmark.keyword: cluster-density-v2'"},
+    {"text": "Metadata includes masterNodesType, masterNodesCount, workerNodesType, workerNodesCount fields", "passed": true, "evidence": "Lines 15-18: all four node config fields present with correct values"},
+    {"text": "API server CPU metric uses metricName: containerCPU with labels.namespace.keyword: openshift-kube-apiserver", "passed": true, "evidence": "Lines 33-34: metricName: containerCPU, labels.namespace.keyword: openshift-kube-apiserver"},
+    {"text": "etcd disk latency metric uses metricName: 99thEtcdDiskBackendCommitDurationSeconds", "passed": true, "evidence": "Line 45: metricName: 99thEtcdDiskBackendCommitDurationSeconds"},
+    {"text": "Pod ready latency metric uses metricName: podLatencyQuantilesMeasurement with quantileName: Ready", "passed": true, "evidence": "Lines 58-59: metricName: podLatencyQuantilesMeasurement, quantileName: Ready"},
+    {"text": "Metrics use the nested agg: structure with value and agg_type subfields (not flat 'aggregation')", "passed": true, "evidence": "Lines 36-38: agg: with nested value: cpu, agg_type: avg. Same pattern on etcd metric."},
+    {"text": "Each metric has a threshold and direction field", "passed": true, "evidence": "All 3 metrics have threshold (15,15,10) and direction: 1"}
+  ],
+  "summary": {"passed": 8, "failed": 0, "total": 8, "pass_rate": 1.0}
+}

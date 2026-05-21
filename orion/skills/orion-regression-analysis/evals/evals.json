@@ -1,0 +1,51 @@
+{
+  "skill_name": "orion-regression-analysis",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need an Orion config to analyze cluster-density-v2 on AWS with 3 master nodes (m6a.xlarge) and 6 worker nodes (m6a.xlarge) on OCP 4.22. I want to monitor API server CPU, etcd disk latency, and pod ready latency.",
+      "expected_output": "A valid YAML config file with correct kube-burner patterns: metadata filters for AWS/cluster-density-v2/4.22, node config fields, and metric definitions using proper agg: structure with metricName, namespace filters, and appropriate thresholds.",
+      "files": [],
+      "expectations": [
+        "Output contains a valid YAML config with a top-level 'tests' key",
+        "Metadata section includes platform: AWS and benchmark.keyword: cluster-density-v2",
+        "Metadata includes masterNodesType, masterNodesCount, workerNodesType, workerNodesCount fields",
+        "API server CPU metric uses metricName: containerCPU with labels.namespace.keyword: openshift-kube-apiserver",
+        "etcd disk latency metric uses metricName: 99thEtcdDiskBackendCommitDurationSeconds",
+        "Pod ready latency metric uses metricName: podLatencyQuantilesMeasurement with quantileName: Ready",
+        "Metrics use the nested agg: structure with value and agg_type subfields (not flat 'aggregation')",
+        "Each metric has a threshold and direction field"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create an Orion config for k8s-netperf TCP_STREAM performance on AWS. I want to track throughput for both pod network and host network scenarios on OCP 4.22.",
+      "expected_output": "A valid YAML config using k8s-netperf patterns: metadata at metadata.platform level, filters at metrics level (not metadata), quoted string booleans, no aggregation field, and metric_of_interest: throughput.",
+      "files": [],
+      "expectations": [
+        "Output contains a valid YAML config with a top-level 'tests' key",
+        "Metadata section uses metadata.platform (not bare 'platform') for k8s-netperf pattern",
+        "profile.keyword filter is at the metrics level, not the metadata level",
+        "hostNetwork values use quoted strings like '\"false\"' or '\"true\"' (not bare YAML booleans)",
+        "Metrics do NOT include an 'aggregation' or 'agg' field (k8s-netperf data is pre-aggregated)",
+        "metric_of_interest is set to 'throughput'",
+        "Config includes separate metrics for pod network (hostNetwork: \"false\") and host network (hostNetwork: \"true\")",
+        "direction is set to -1 for throughput (decrease is regression)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have an Orion config but I'm getting no data returned. My ES is at https://es.example.com with basic auth (user: admin, pass: secret123). I'm using benchmark index ripsaw-kube-burner-* and metadata index perf_scale_ci*. Can you help me debug and give me the right commands to investigate?",
+      "expected_output": "Troubleshooting guidance including discovery commands to check data availability, validation commands, and a properly constructed orion command with the user's ES credentials.",
+      "files": [],
+      "expectations": [
+        "Suggests running the discover-es-data.py script to check available benchmarks/metrics",
+        "Suggests running validate-es-asset.py to verify ES connectivity",
+        "Provides a complete orion command with --es-server, --benchmark-index, and --metadata-index flags using the user's provided values",
+        "Discovery commands use the correct flag order (--config BEFORE the subcommand)",
+        "Mentions checking metadata filters, lookback period, or index patterns as possible causes of no data",
+        "Does NOT suggest creating a bash setup script (the skill explicitly forbids this)"
+      ]
+    }
+  ]
+}
