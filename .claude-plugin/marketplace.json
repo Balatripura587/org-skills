@@ -9,9 +9,9 @@
   "plugins": [
     {
       "name": "orion",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "source": "./orion",
-      "description": "Orion performance regression detection \u2014 config generation, Elasticsearch discovery, and analysis for OpenShift CPT benchmarks",
+      "description": "Orion performance regression detection \u2014 config generation, Elasticsearch discovery, analysis, and MCP query planning for OpenShift CPT benchmarks",
       "license": "Apache-2.0"
     }
   ]
