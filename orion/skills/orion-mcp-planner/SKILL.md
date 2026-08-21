@@ -101,11 +101,14 @@ Build `input_vars` from the job's `metadata` as a JSON string. Comma-join config
 | "correlate X with Y" | `metrics_correlation` | config_name, input_vars, metric1, metric2, version |
 | "health check" | `get_performance_summary` | config_name, input_vars, version, lookback |
 | "what metrics" | `get_orion_metrics` | config_name, input_vars, version |
-| "analyze PR" | `openshift_report_on_pr` | config_name, input_vars, version, org, repo, pull_request |
+| "metric thresholds / directions" | `get_orion_metrics_with_meta` | config_name only — skip Steps 1-2, reads YAML directly, no ES/input_vars needed |
+| "analyze PR" | `openshift_report_on_pr` | config_name, input_vars, version, org, repo, pull_request — call discover_jobs with job_type="pull" to get  configs and metadata |
 | "list configs" | `get_orion_configs` | (none — skip Steps 1-2) |
 | "release date" | `get_release_date` | version (skip Steps 1-2) |
 
 Multiple configs: pass comma-separated. All share same input_vars. Different input_vars → separate calls.
+
+**Networking intent**: Networking configs (`node-density-cni.yaml`, `udn-density-pods.yaml`, `udn-*`) are run inside **payload jobs** . Call `discover_jobs` with `workload="payload"`, then filter the returned `configs` list to keep only those matching `*cni*`, `*udn*`, `*cudn*`. Pass only those to `has_networking_regressed`.
 
 ## Debugging: Where Things Live
 
