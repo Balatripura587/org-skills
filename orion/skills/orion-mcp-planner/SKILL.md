@@ -65,6 +65,8 @@ Extract from user question:
 
 ## Step 2: Discover Jobs
 
+**Always call `discover_jobs`** — even when the user names a specific config file. It returns the config's required `input_vars` (platform, workerNodesCount, clusterType, etc.) from real ES metadata. Without this, Jinja-template configs like `cluster-density.yaml` render with empty values and return wrong or no results.
+
 Call `discover_jobs` with the params from Step 1. It returns jobs with **configs already resolved** from prow build logs:
 ```json
 {
@@ -81,6 +83,8 @@ Call `discover_jobs` with the params from Step 1. It returns jobs with **configs
 ```
 
 Use `configs` directly as comma-separated `config_name`. Build `input_vars` JSON from `metadata`.
+
+**If the user specifies a config name explicitly** (e.g. "use cluster-density.yaml"): still call `discover_jobs` to get the `metadata`/`input_vars` for that config. Pass the user-specified config as `config_name` and the discovered `metadata` as `input_vars`.
 
 **If `configs` is empty** for a job (prow artifacts expired or unavailable): use `get_orion_configs` to list available configs, then match by benchmark name (e.g. benchmark `cluster-density-v2` → config `cluster-density.yaml`). If no obvious match, ask the user which config to use.
 
