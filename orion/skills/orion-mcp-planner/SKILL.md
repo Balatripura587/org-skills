@@ -92,19 +92,26 @@ Use `configs` directly as comma-separated `config_name`. Build `input_vars` JSON
 
 Build `input_vars` from the job's `metadata` as a JSON string. Comma-join config files for multi-config tools.
 
-| Intent | Tool | Key params |
-|---|---|---|
-| "has X regressed" | `has_openshift_regressed` | config_name, input_vars, version, lookback |
-| "networking regressions" | `has_networking_regressed` | config_name, input_vars, version, lookback |
-| "inspect nightly" | `has_nightly_regressed` | config_name, input_vars, nightly_version, lookback |
-| "show metric" / "compare" | `openshift_report_on` | config_name, input_vars, versions, metric, lookback |
-| "correlate X with Y" | `metrics_correlation` | config_name, input_vars, metric1, metric2, version |
-| "health check" | `get_performance_summary` | config_name, input_vars, version, lookback |
-| "what metrics" | `get_orion_metrics` | config_name, input_vars, version |
-| "metric thresholds / directions" | `get_orion_metrics_with_meta` | config_name only — skip Steps 1-2, reads YAML directly, no ES/input_vars needed |
-| "analyze PR" | `openshift_report_on_pr` | config_name, input_vars, version, org, repo, pull_request — call discover_jobs with job_type="pull" to get  configs and metadata |
-| "list configs" | `get_orion_configs` | (none — skip Steps 1-2) |
-| "release date" | `get_release_date` | version (skip Steps 1-2) |
+**Always run Steps 1-2 (discover_jobs) before calling any tool — EXCEPT these three which need no discovery:**
+- `get_orion_configs` — lists configs, no ES needed
+- `get_release_date` — date lookup only
+- `get_orion_metrics_with_meta` — reads config YAML locally, pass `config_name` directly, no `input_vars` needed
+
+**For PR analysis** (`openshift_report_on_pr`): run `discover_jobs` with `job_type="pull"` instead of `"periodic"`.
+
+| Intent | Tool |
+|---|---|
+| "has X regressed" | `has_openshift_regressed` |
+| "networking regressions" | `has_networking_regressed` |
+| "inspect nightly" | `has_nightly_regressed` |
+| "show metric" / "compare versions" | `openshift_report_on` |
+| "correlate X with Y" | `metrics_correlation` |
+| "health check" / "overall performance" | `get_performance_summary` |
+| "what metrics does X track" | `get_orion_metrics` |
+| "thresholds / directions for metrics" | `get_orion_metrics_with_meta` |
+| "analyze PR" / "check PR impact" | `openshift_report_on_pr` |
+| "list configs" / "what benchmarks exist" | `get_orion_configs` |
+| "release date for X" | `get_release_date` |
 
 Multiple configs: pass comma-separated. All share same input_vars. Different input_vars → separate calls.
 
