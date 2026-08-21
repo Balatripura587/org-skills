@@ -1,4 +1,4 @@
-# orion-mcp-planner
+# orion-mcp
 
 A query planner skill that translates natural language performance questions into [orion-mcp](https://github.com/cloud-bulldozer/orion-mcp) tool calls.
 

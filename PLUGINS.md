@@ -14,7 +14,7 @@ Orion performance regression detection — config generation, Elasticsearch disc
 
 | Skill | Description |
 |-------|-------------|
-| `/orion-mcp-planner` | Translates performance questions into orion-mcp tool calls. Parses intent/filters, calls discover_jobs for configs, then calls the right orion tool. |
+| `/orion-mcp` | Translates performance questions into orion-mcp tool calls. Parses intent/filters, calls discover_jobs for configs, then calls the right orion tool. |
 | `/orion-regression-analysis` | Expert assistant for Orion performance regression detection and analysis in OpenShift environments. Use when user mentions Orion config, Orion YAML, performance regression, OpenShift performance, or asks about detecting regressions or discovering metrics for Orion configs. |
 
 ---

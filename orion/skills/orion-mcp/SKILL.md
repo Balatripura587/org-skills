@@ -1,5 +1,5 @@
 ---
-name: orion-mcp-planner
+name: orion-mcp
 description: "Translates performance questions into orion-mcp tool calls. Parses intent/filters, calls discover_jobs for configs, then calls the right orion tool."
 disable-model-invocation: false
 user-invocable: true
