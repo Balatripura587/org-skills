@@ -97,7 +97,7 @@ Build `input_vars` from the job's `metadata` as a JSON string. Comma-join config
 - `orion-mcp:get_release_date` — date lookup only
 - `orion-mcp:get_orion_metrics_with_meta` — reads config YAML locally, pass `config_name` directly, no `input_vars` needed
 
-**For PR analysis** (`orion-mcp:openshift_report_on_pr`): run `orion-mcp:discover_jobs` with `job_type="pull"` instead of `"periodic"`.
+**For PR analysis** (`orion-mcp:openshift_report_on_pr`): run `orion-mcp:discover_jobs` with `job_type="pull"` and **no workload filter** — a PR can trigger payload, control-plane, and networking jobs. Pass all returned configs to `openshift_report_on_pr`.
 
 | Intent | Tool |
 |---|---|
