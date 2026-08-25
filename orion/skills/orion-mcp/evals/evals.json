@@ -3,13 +3,13 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "has 4.22 regressed?",
-      "expected_output": "Calls discover_jobs with version=4.22, platform=AWS, cluster_type=self-managed, workload=payload, scale=6, then calls has_openshift_regressed with the resolved configs and input_vars",
+      "prompt": "has 4.22 regressed on AWS?",
+      "expected_output": "Calls discover_jobs with version=4.22, platform=AWS, cluster_type=self-managed and no workload filter (platform specified without workload returns all job types), then calls has_openshift_regressed with the resolved configs and input_vars",
       "files": [],
       "expectations": [
-        "Calls discover_jobs with version 4.22",
-        "Uses default platform AWS and cluster_type self-managed when not specified",
-        "Uses default workload payload and scale 6 when not specified",
+        "Calls discover_jobs with version 4.22 and platform AWS",
+        "Maps aws to platform=AWS and cluster_type=self-managed",
+        "Does NOT apply a workload filter — platform specified without workload returns all job types for that platform",
         "Calls has_openshift_regressed (not openshift_report_on or other tool) for regression intent",
         "Passes config_name from discover_jobs configs field as comma-separated string",
         "Builds input_vars JSON from the job metadata including platform and workerNodesCount"
@@ -18,26 +18,30 @@
     {
       "id": 2,
       "prompt": "show podReadyLatency for 5.0 vs 4.22 on rosa-hcp",
-      "expected_output": "Calls discover_jobs with platform=AWS, cluster_type=rosa-hcp for each version, then calls openshift_report_on with metric=podReadyLatency and both versions",
+      "expected_output": "Calls discover_jobs with platform=AWS, cluster_type=rosa-hcp, no workload filter, once per version (5.0 and 4.22), then calls openshift_report_on with metric=podReadyLatency, both versions comma-separated, and config_name + input_vars from discover_jobs",
       "files": [],
       "expectations": [
         "Maps rosa-hcp to platform=AWS and cluster_type=rosa-hcp",
-        "Calls discover_jobs for both versions 5.0 and 4.22",
+        "Does NOT apply a workload filter — platform specified without workload returns all job types",
+        "Calls discover_jobs once per version (5.0 and 4.22) to resolve configs and metadata for each",
         "Calls openshift_report_on (not has_openshift_regressed) for show/compare intent",
         "Passes podReadyLatency as the metric parameter",
-        "Passes both versions as comma-separated versions parameter"
+        "Passes both versions as comma-separated versions parameter",
+        "Passes config_name and input_vars from discover_jobs results"
       ]
     },
     {
       "id": 3,
       "prompt": "are there networking regressions on 4.22 fips jobs?",
-      "expected_output": "Calls discover_jobs with version=4.22, fips=true, workload=control-plane, then calls has_networking_regressed with resolved configs",
+      "expected_output": "Calls discover_jobs with version=4.22, fips=true, workload=payload (networking configs live inside payload jobs), filters returned configs to *cni*/*udn*/*cudn* patterns, then calls has_networking_regressed with those filtered configs and input_vars",
       "files": [],
       "expectations": [
         "Sets fips=true when user mentions fips",
-        "Uses workload control-plane as default when fips is mentioned without explicit workload",
+        "Uses workload=payload (not control-plane) for networking intent — networking configs run inside payload jobs",
+        "Calls discover_jobs with workload=payload and fips=true",
+        "Filters discover_jobs configs to only those matching *cni*, *udn*, or *cudn* patterns",
         "Calls has_networking_regressed (not has_openshift_regressed) for networking regression intent",
-        "Passes config_name and input_vars from discover_jobs results"
+        "Passes filtered config_name and input_vars from discover_jobs results"
       ]
     }
   ]

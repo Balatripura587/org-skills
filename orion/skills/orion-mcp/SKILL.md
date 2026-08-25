@@ -19,7 +19,7 @@ You translate user performance questions into orion-mcp tool calls. You parse, d
 - `upstreamJob` — full prow job name
 - `benchmark` — workload name (e.g. `cluster-density-v2`, `node-density`)
 - `ocpVersion` — full nightly string (e.g. `4.22.0-0.nightly-2026-08-10-215205`)
-- `platform` — `AWS`, `GCP`, `Azure`, `BareMetal`
+- `platform` — `AWS`, `GCP`, `Azure`, `BareMetal`, `IBMCloud`
 - `clusterType` — `self-managed`, `rosa-hcp`, `rosa`
 - `workerNodesCount` — integer (6, 24, 120, etc.)
 - `networkType` — `OVNKubernetes`
@@ -55,11 +55,27 @@ Extract from user question:
 | gcp | GCP | (any) |
 | azure | Azure | (any) |
 | metal, baremetal | BareMetal | (any) |
+| ibm, ibmcloud | IBMCloud | (any) |
 
 **Defaults** when user is vague:
 - No filters at all → `workload="payload"`, `scale=6`, `platform="AWS"`, `cluster_type="self-managed"`
 - fips/ipsec/encrypted mentioned without workload → `workload="control-plane"`
 - Platform specified without workload → don't filter workload (show all)
+**Benchmark reference** (for user-facing descriptions):
+
+| Config | Benchmark | What it measures |
+|---|---|---|
+| cluster-density.yaml | cluster-density-v2 | General OpenShift object density — namespaces, pods, services, routes, configmaps; measures pod scheduling latency and control-plane resource usage |
+| node-density.yaml | node-density | Worker node pod saturation — container startup latency (P99 ContainersStarted) under maximum pod density per node |
+| node-density-cni.yaml | node-density-cni | CNI service readiness under node density load — P99 serviceReadyLatency (time for services to become ready after pod creation) |
+| udn-density-pods.yaml | udn-density-pods | User Defined Network pod density — pod scheduling latency and OVN-K component CPU/memory (northd, nbdb, sbdb, ovn-controller) under UDN load |
+| crd-scale.yaml | crd-scale | CRD and CR scaling — API server CPU/memory, etcd latency, and API call latency as CRDs and CRs are scaled |
+| small-scale-udn-l2.yaml | udn-density-l2 | Layer 2 UDN pod density (24-node AWS) — OVN-K CPU/memory under L2 UDN network topology |
+| small-scale-udn-l3.yaml | udn-density-l3 | Layer 3 (routed) UDN pod density (24-node AWS) — same as L2 but for routed UDN topology |
+| netpol-24nodes.yaml | network-policy | NetworkPolicy enforcement at 24 workers — policy enforcement latency and OVN-K control-plane resource usage |
+| metal-perfscale-cpt-node-density.yaml | node-density | Node density on bare metal — pod startup latency and CPU/memory across apiserver, OVN, etcd, kubelet |
+| metal-perfscale-cpt-virt-density.yaml | virt-density | VM density on bare metal — VM readiness latency (P99 VMReady) and resource consumption under OpenShift Virtualization |
+| rosa-hcp-cluster-density.yaml | cluster-density-v2 | Cluster density on ROSA HCP (hosted control plane) — same workload as cluster-density adapted for managed control plane |
 
 **If unsure about a mapping**, call `orion-mcp:discover_jobs` with just the `version` and no other filters to see what jobs/platforms/scales exist. The response shows all available combinations.
 
