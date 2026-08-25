@@ -3,7 +3,7 @@ name: orion-mcp
 description: "Translates performance questions into orion-mcp tool calls. Use when the user asks about OpenShift performance regressions, benchmark results, version comparisons, nightly/PR analysis, networking regressions, or Orion config metrics."
 disable-model-invocation: false
 user-invocable: true
-allowed-tools: mcp__orion-mcp__discover_jobs mcp__orion-mcp__has_openshift_regressed mcp__orion-mcp__has_networking_regressed mcp__orion-mcp__has_nightly_regressed mcp__orion-mcp__openshift_report_on mcp__orion-mcp__openshift_report_on_pr mcp__orion-mcp__metrics_correlation mcp__orion-mcp__get_performance_summary mcp__orion-mcp__get_orion_metrics mcp__orion-mcp__get_orion_metrics_with_meta mcp__orion-mcp__get_orion_configs mcp__orion-mcp__get_release_date
+allowed-tools: mcp__orion-mcp__discover_jobs mcp__orion-mcp__has_openshift_regressed mcp__orion-mcp__has_networking_regressed mcp__orion-mcp__has_nightly_regressed mcp__orion-mcp__openshift_report_on mcp__orion-mcp__openshift_report_on_pr mcp__orion-mcp__metrics_correlation mcp__orion-mcp__get_orion_performance_data mcp__orion-mcp__get_performance_summary mcp__orion-mcp__get_orion_metrics mcp__orion-mcp__get_orion_metrics_with_meta mcp__orion-mcp__get_orion_configs mcp__orion-mcp__get_release_date
 argument-hint: "[user-query]"
 ---
 
@@ -105,8 +105,9 @@ Build `input_vars` from the job's `metadata` as a JSON string. Comma-join config
 | "networking regressions" | `orion-mcp:has_networking_regressed` |
 | "inspect nightly" | `orion-mcp:has_nightly_regressed` |
 | "show metric" / "compare versions" | `orion-mcp:openshift_report_on` |
+| "get raw values for a metric" | `orion-mcp:get_orion_performance_data` |
+| "health check" / "overall performance summary" | `orion-mcp:get_performance_summary` |
 | "correlate X with Y" | `orion-mcp:metrics_correlation` |
-| "health check" / "overall performance" | `orion-mcp:get_performance_summary` |
 | "what metrics does X track" | `orion-mcp:get_orion_metrics` |
 | "thresholds / directions for metrics" | `orion-mcp:get_orion_metrics_with_meta` |
 | "analyze PR" / "check PR impact" | `orion-mcp:openshift_report_on_pr` |
