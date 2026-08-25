@@ -1,9 +1,9 @@
 ---
 name: orion-mcp
-description: "Translates performance questions into orion-mcp tool calls. Parses intent/filters, calls discover_jobs for configs, then calls the right orion tool."
+description: "Translates performance questions into orion-mcp tool calls. Use when the user asks about OpenShift performance regressions, benchmark results, version comparisons, nightly/PR analysis, networking regressions, or Orion config metrics."
 disable-model-invocation: false
 user-invocable: true
-allowed-tools: Read Bash
+allowed-tools: mcp__orion-mcp__discover_jobs mcp__orion-mcp__has_openshift_regressed mcp__orion-mcp__has_networking_regressed mcp__orion-mcp__has_nightly_regressed mcp__orion-mcp__openshift_report_on mcp__orion-mcp__openshift_report_on_pr mcp__orion-mcp__metrics_correlation mcp__orion-mcp__get_performance_summary mcp__orion-mcp__get_orion_metrics mcp__orion-mcp__get_orion_metrics_with_meta mcp__orion-mcp__get_orion_configs mcp__orion-mcp__get_release_date
 argument-hint: "[user-query]"
 ---
 
@@ -61,13 +61,13 @@ Extract from user question:
 - fips/ipsec/encrypted mentioned without workload → `workload="control-plane"`
 - Platform specified without workload → don't filter workload (show all)
 
-**If unsure about a mapping**, call `discover_jobs` with just the `version` and no other filters to see what jobs/platforms/scales exist. The response shows all available combinations.
+**If unsure about a mapping**, call `orion-mcp:discover_jobs` with just the `version` and no other filters to see what jobs/platforms/scales exist. The response shows all available combinations.
 
 ## Step 2: Discover Jobs
 
-**Always call `discover_jobs`** — even when the user names a specific config file. It returns the config's required `input_vars` (platform, workerNodesCount, clusterType, etc.) from real ES metadata. Without this, Jinja-template configs like `cluster-density.yaml` render with empty values and return wrong or no results.
+**Always call `orion-mcp:discover_jobs`** — even when the user names a specific config file. It returns the config's required `input_vars` (platform, workerNodesCount, clusterType, etc.) from real ES metadata. Without this, Jinja-template configs like `cluster-density.yaml` render with empty values and return wrong or no results.
 
-Call `discover_jobs` with the params from Step 1. It returns jobs with **configs already resolved** from prow build logs:
+Call `orion-mcp:discover_jobs` with the params from Step 1. It returns jobs with **configs already resolved** from prow build logs:
 ```json
 {
   "jobs": {
@@ -84,53 +84,51 @@ Call `discover_jobs` with the params from Step 1. It returns jobs with **configs
 
 Use `configs` directly as comma-separated `config_name`. Build `input_vars` JSON from `metadata`.
 
-**If the user specifies a config name explicitly** (e.g. "use cluster-density.yaml"): still call `discover_jobs` to get the `metadata`/`input_vars` for that config. Pass the user-specified config as `config_name` and the discovered `metadata` as `input_vars`.
+**If the user specifies a config name explicitly** (e.g. "use cluster-density.yaml"): still call `orion-mcp:discover_jobs` to get the `metadata`/`input_vars` for that config. Pass the user-specified config as `config_name` and the discovered `metadata` as `input_vars`.
 
-**If `configs` is empty** for a job (prow artifacts expired or unavailable): use `get_orion_configs` to list available configs, then match by benchmark name (e.g. benchmark `cluster-density-v2` → config `cluster-density.yaml`). If no obvious match, ask the user which config to use.
+**If `configs` is empty** for a job (prow artifacts expired or unavailable): use `orion-mcp:get_orion_configs` to list available configs, then match by benchmark name (e.g. benchmark `cluster-density-v2` → config `cluster-density.yaml`). If no obvious match, ask the user which config to use.
 
 ## Step 3: Call orion-mcp
 
 Build `input_vars` from the job's `metadata` as a JSON string. Comma-join config files for multi-config tools.
 
-**Always run Steps 1-2 (discover_jobs) before calling any tool — EXCEPT these three which need no discovery:**
-- `get_orion_configs` — lists configs, no ES needed
-- `get_release_date` — date lookup only
-- `get_orion_metrics_with_meta` — reads config YAML locally, pass `config_name` directly, no `input_vars` needed
+**Always run Steps 1-2 (`orion-mcp:discover_jobs`) before calling any tool — EXCEPT these three which need no discovery:**
+- `orion-mcp:get_orion_configs` — lists configs, no ES needed
+- `orion-mcp:get_release_date` — date lookup only
+- `orion-mcp:get_orion_metrics_with_meta` — reads config YAML locally, pass `config_name` directly, no `input_vars` needed
 
-**For PR analysis** (`openshift_report_on_pr`): run `discover_jobs` with `job_type="pull"` instead of `"periodic"`.
+**For PR analysis** (`orion-mcp:openshift_report_on_pr`): run `orion-mcp:discover_jobs` with `job_type="pull"` instead of `"periodic"`.
 
 | Intent | Tool |
 |---|---|
-| "has X regressed" | `has_openshift_regressed` |
-| "networking regressions" | `has_networking_regressed` |
-| "inspect nightly" | `has_nightly_regressed` |
-| "show metric" / "compare versions" | `openshift_report_on` |
-| "correlate X with Y" | `metrics_correlation` |
-| "health check" / "overall performance" | `get_performance_summary` |
-| "what metrics does X track" | `get_orion_metrics` |
-| "thresholds / directions for metrics" | `get_orion_metrics_with_meta` |
-| "analyze PR" / "check PR impact" | `openshift_report_on_pr` |
-| "list configs" / "what benchmarks exist" | `get_orion_configs` |
-| "release date for X" | `get_release_date` |
+| "has X regressed" | `orion-mcp:has_openshift_regressed` |
+| "networking regressions" | `orion-mcp:has_networking_regressed` |
+| "inspect nightly" | `orion-mcp:has_nightly_regressed` |
+| "show metric" / "compare versions" | `orion-mcp:openshift_report_on` |
+| "correlate X with Y" | `orion-mcp:metrics_correlation` |
+| "health check" / "overall performance" | `orion-mcp:get_performance_summary` |
+| "what metrics does X track" | `orion-mcp:get_orion_metrics` |
+| "thresholds / directions for metrics" | `orion-mcp:get_orion_metrics_with_meta` |
+| "analyze PR" / "check PR impact" | `orion-mcp:openshift_report_on_pr` |
+| "list configs" / "what benchmarks exist" | `orion-mcp:get_orion_configs` |
+| "release date for X" | `orion-mcp:get_release_date` |
 
 Multiple configs: pass comma-separated. All share same input_vars. Different input_vars → separate calls.
 
-**Networking intent**: Networking configs (`node-density-cni.yaml`, `udn-density-pods.yaml`, `udn-*`) are run inside **payload jobs** . Call `discover_jobs` with `workload="payload"`, then filter the returned `configs` list to keep only those matching `*cni*`, `*udn*`, `*cudn*`. Pass only those to `has_networking_regressed`.
+**Networking intent**: Networking configs (`node-density-cni.yaml`, `udn-density-pods.yaml`, `udn-*`) are run inside **payload jobs**. Call `orion-mcp:discover_jobs` with `workload="payload"`, then filter the returned `configs` list to keep only those matching `*cni*`, `*udn*`, `*cudn*`. Pass only those to `orion-mcp:has_networking_regressed`.
 
-## Debugging: Where Things Live
+## When discover_jobs Returns Unexpected Results
 
-Only use these when `discover_jobs` returns unexpected results or `configs` is empty:
+If `configs` is empty (prow artifacts expired or job hasn't run recently):
+1. Call `orion-mcp:get_orion_configs` to list all available configs
+2. Match by benchmark name — e.g. benchmark `cluster-density-v2` → config `cluster-density.yaml`
+3. If no clear match, ask the user which config to use
 
-| What | How to access |
-|---|---|
-| Job definitions | `gh api repos/openshift/release/contents/ci-operator/config/openshift-eng/ocp-perfscale/` |
-| Prow step registry | `gh api repos/openshift/release/contents/ci-operator/step-registry/openshift-qe/orion/` |
-| Orion config files | `get_orion_configs()` tool |
-| Env var overrides | `gh api` to read step ref YAML or ci-operator config YAML |
+If `orion-mcp:discover_jobs` returns no jobs at all, the version/platform/workload combination may not exist. Relax filters (drop `scale`, then `workload`) or ask the user to confirm the job exists.
 
 ## Example
 
 **"has 4.22 regressed?"**
 1. Parse: version=4.22, no other filters → defaults: workload=payload, scale=6, platform=AWS, cluster_type=self-managed
-2. `discover_jobs(version="4.22", platform="AWS", cluster_type="self-managed", workload="payload", scale=6)` → returns jobs with configs already resolved
-3. `has_openshift_regressed(config_name="cluster-density.yaml,node-density.yaml,node-density-cni.yaml,crd-scale.yaml,udn-density-pods.yaml", input_vars='{"platform":"AWS","workerNodesCount":"6",...}', version="4.22")`
+2. `orion-mcp:discover_jobs(version="4.22", platform="AWS", cluster_type="self-managed", workload="payload", scale=6)` → returns jobs with configs already resolved
+3. `orion-mcp:has_openshift_regressed(config_name="cluster-density.yaml,node-density.yaml,node-density-cni.yaml,crd-scale.yaml,udn-density-pods.yaml", input_vars='{"platform":"AWS","workerNodesCount":"6",...}', version="4.22")`
